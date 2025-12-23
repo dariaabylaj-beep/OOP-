@@ -1,13 +1,19 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-void main() {
-    //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-    // to see how IntelliJ IDEA suggests fixing it.
-    IO.println(String.format("Hello and welcome!"));
+public class Main {
+    public static void main(String[] args) {
 
-    for (int i = 1; i <= 5; i++) {
-        //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-        // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-        IO.println("i = " + i);
+        Member member = new Member(1, "Aruzhan", 20, "Basic");
+
+        Trainer trainer = new Trainer(101, "Ali", "Cardio", 6);
+
+        WorkoutSession session = new WorkoutSession(5001, member.getName(), trainer, 60);
+
+        System.out.println("Is member active? " + member.isActiveMember());
+        member.upgradeMembership();
+
+        System.out.println("Is trainer experienced? " + trainer.isExperienced());
+        System.out.println("Can trainer teach Cardio? " + trainer.canTeach("Cardio"));
+
+        session.extendSession(15);
+        session.completeSession();
     }
 }
