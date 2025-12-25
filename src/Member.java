@@ -34,20 +34,31 @@ public class Member {
         return active;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public void setMembershipType(String membershipType) {
         this.membershipType = membershipType;
     }
 
-    public boolean isActiveMember() {
-        return active;
+    public void upgrade(String newType) {
+        this.membershipType = newType;
     }
 
-    public void upgradeMembership() {
-        if (membershipType.equals("Basic")) {
-            membershipType = "Premium";
-            System.out.println(name + " upgraded to Premium membership.");
-        } else {
-            System.out.println(name + " already has Premium membership.");
-        }
+    public void cancelMembership() {
+        this.active = false;
+    }
+
+    @Override
+    public String toString() {
+        return "Member{" +
+                "memberId=" + memberId +
+                ", name='" + name + '\'' +
+                ", age=" + age +
+                ", membershipType='" + membershipType + '\'' +
+                ", active=" + active +
+                '}';
     }
 }
+

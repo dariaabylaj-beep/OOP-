@@ -4,14 +4,12 @@ public class Trainer {
     private String name;
     private String specialization;
     private int experience;
-    private boolean available;
 
     public Trainer(int trainerId, String name, String specialization, int experience) {
         this.trainerId = trainerId;
         this.name = name;
         this.specialization = specialization;
         this.experience = experience;
-        this.available = true;
     }
 
     public int getTrainerId() {
@@ -34,7 +32,17 @@ public class Trainer {
         return experience >= 5;
     }
 
-    public boolean canTeach(String workoutType) {
-        return specialization.equalsIgnoreCase(workoutType);
+    public boolean canTeach(String type) {
+        return specialization.equalsIgnoreCase(type);
+    }
+
+    @Override
+    public String toString() {
+        return "Trainer{" +
+                "trainerId=" + trainerId +
+                ", name='" + name + '\'' +
+                ", specialization='" + specialization + '\'' +
+                ", experience=" + experience +
+                '}';
     }
 }

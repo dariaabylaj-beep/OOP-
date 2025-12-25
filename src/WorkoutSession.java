@@ -3,7 +3,7 @@ public class WorkoutSession {
     private int sessionId;
     private String memberName;
     private Trainer trainer;
-    private int duration; // minutes
+    private int duration;
     private boolean completed;
 
     public WorkoutSession(int sessionId, String memberName, Trainer trainer, int duration) {
@@ -18,6 +18,14 @@ public class WorkoutSession {
         return sessionId;
     }
 
+    public String getMemberName() {
+        return memberName;
+    }
+
+    public Trainer getTrainer() {
+        return trainer;
+    }
+
     public int getDuration() {
         return duration;
     }
@@ -26,13 +34,22 @@ public class WorkoutSession {
         return completed;
     }
 
-    public void extendSession(int extraMinutes) {
-        duration += extraMinutes;
-        System.out.println("Session extended by " + extraMinutes + " minutes.");
+    public void extend(int extraMinutes) {
+        this.duration += extraMinutes;
     }
 
-    public void completeSession() {
-        completed = true;
-        System.out.println("Workout session completed.");
+    public void complete() {
+        this.completed = true;
+    }
+
+    @Override
+    public String toString() {
+        return "WorkoutSession{" +
+                "sessionId=" + sessionId +
+                ", memberName='" + memberName + '\'' +
+                ", trainer=" + trainer.getName() +
+                ", duration=" + duration +
+                ", completed=" + completed +
+                '}';
     }
 }
