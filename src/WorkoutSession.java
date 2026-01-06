@@ -1,5 +1,4 @@
 public class WorkoutSession {
-
     private int sessionId;
     private String memberName;
     private Trainer trainer;
@@ -44,12 +43,6 @@ public class WorkoutSession {
 
     @Override
     public String toString() {
-        return "WorkoutSession{" +
-                "sessionId=" + sessionId +
-                ", memberName='" + memberName + '\'' +
-                ", trainer=" + trainer.getName() +
-                ", duration=" + duration +
-                ", completed=" + completed +
-                '}';
+        return "WorkoutSession{ID=" + sessionId + ", Member='" + memberName + "', Trainer=" + trainer.getName() + ", Duration=" + duration + ", Completed=" + completed + "}";
     }
 }

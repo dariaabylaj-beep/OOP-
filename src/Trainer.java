@@ -1,5 +1,4 @@
 public class Trainer {
-
     private int trainerId;
     private String name;
     private String specialization;
@@ -38,11 +37,6 @@ public class Trainer {
 
     @Override
     public String toString() {
-        return "Trainer{" +
-                "trainerId=" + trainerId +
-                ", name='" + name + '\'' +
-                ", specialization='" + specialization + '\'' +
-                ", experience=" + experience +
-                '}';
+        return "Trainer{ID=" + trainerId + ", Name='" + name + "', Specialization='" + specialization + "', Experience=" + experience + "}";
     }
 }

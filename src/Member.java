@@ -1,17 +1,16 @@
-public class Member {
+import java.util.ArrayList;
 
-    private int memberId;
-    private String name;
-    private int age;
-    private String membershipType;
-    private boolean active;
+public class Member {
+    protected int memberId;
+    protected String name;
+    protected int age;
+    protected String membershipType;
 
     public Member(int memberId, String name, int age, String membershipType) {
         this.memberId = memberId;
         this.name = name;
-        this.age = age;
+        setAge(age);
         this.membershipType = membershipType;
-        this.active = true;
     }
 
     public int getMemberId() {
@@ -30,35 +29,27 @@ public class Member {
         return membershipType;
     }
 
-    public boolean isActive() {
-        return active;
+    public void setAge(int age) {
+        if (age > 0) {
+            this.age = age;
+        } else {
+            System.out.println("Age must be positive!");
+        }
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void workout() {
+        System.out.println(name + " is doing a general workout.");
     }
 
-    public void setMembershipType(String membershipType) {
-        this.membershipType = membershipType;
-    }
-
-    public void upgrade(String newType) {
-        this.membershipType = newType;
-    }
-
-    public void cancelMembership() {
-        this.active = false;
+    public String getRole() {
+        return "Gym Member";
     }
 
     @Override
     public String toString() {
-        return "Member{" +
-                "memberId=" + memberId +
-                ", name='" + name + '\'' +
-                ", age=" + age +
-                ", membershipType='" + membershipType + '\'' +
-                ", active=" + active +
-                '}';
+        return "[" + getRole() + "] ID: " + memberId +
+                ", Name: " + name +
+                ", Age: " + age +
+                ", Type: " + membershipType;
     }
 }
-
