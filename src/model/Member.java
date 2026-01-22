@@ -34,7 +34,6 @@ public abstract class Member {
         this.age = age;
     }
 
-    // ABSTRACT METHODS (қорғауда 100% сұралады)
     public abstract void workout();
     public abstract String getRole();
 
