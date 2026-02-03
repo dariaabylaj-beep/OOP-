@@ -9,6 +9,14 @@ public class PremiumMember extends Member {
         this.hasPersonalTrainer = hasPersonalTrainer;
     }
 
+    public boolean isHasPersonalTrainer() {
+        return hasPersonalTrainer;
+    }
+
+    public void setHasPersonalTrainer(boolean hasPersonalTrainer) {
+        this.hasPersonalTrainer = hasPersonalTrainer;
+    }
+
     @Override
     public void workout() {
         System.out.println("Premium member " + name + " is training with a personal trainer.");
