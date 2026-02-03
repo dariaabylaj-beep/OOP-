@@ -37,6 +37,22 @@ public abstract class Member {
     public abstract void workout();
     public abstract String getRole();
 
+    public int getMemberId() {
+        return memberId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public String getMembershipType() {
+        return membershipType;
+    }
+
     @Override
     public String toString() {
         return "[" + getRole() + "] ID: " + memberId +
