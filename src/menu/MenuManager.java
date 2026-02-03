@@ -1,24 +1,36 @@
 package menu;
 
-import model.*;
-import interfaces.Discountable;
+import dao.MemberDAO;
 import exception.InvalidInputException;
+import interfaces.Discountable;
+import model.Member;
+import model.PremiumMember;
+import model.StudentMember;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class MenuManager implements Menu {
 
     private final Scanner scanner = new Scanner(System.in);
-    private final ArrayList<Member> members = new ArrayList<>();
+    private final MemberDAO dao = new MemberDAO();
 
     @Override
     public void displayMenu() {
         System.out.println("\n===== GYM MANAGEMENT SYSTEM =====");
-        System.out.println("1. Add Student Member");
-        System.out.println("2. Add Premium Member");
-        System.out.println("3. View All Members");
-        System.out.println("4. Polymorphism Demo");
+        System.out.println("1. Add Student Member (INSERT)");
+        System.out.println("2. Add Premium Member (INSERT)");
+        System.out.println("3. View All Members (SELECT)");
+        System.out.println("4. View Student Members (Filtered SELECT)");
+        System.out.println("5. View Premium Members (Filtered SELECT)");
+        System.out.println("6. Get Member by ID (getById)");
+        System.out.println("7. Update Student Member (UPDATE)");
+        System.out.println("8. Update Premium Member (UPDATE)");
+        System.out.println("9. Delete Member (DELETE)");
+        System.out.println("10. Search by Name (ILIKE)");
+        System.out.println("11. Search by Age Range (BETWEEN)");
+        System.out.println("12. Search by Min Age (>=)");
+        System.out.println("13. Polymorphism Demo");
         System.out.println("0. Exit");
         System.out.print("Choose: ");
     }
@@ -29,16 +41,55 @@ public class MenuManager implements Menu {
 
         while (running) {
             displayMenu();
+
             try {
                 int choice = Integer.parseInt(scanner.nextLine());
 
                 switch (choice) {
-                    case 1 -> addStudent();
-                    case 2 -> addPremium();
-                    case 3 -> viewAll();
-                    case 4 -> demoPolymorphism();
-                    case 0 -> running = false;
-                    default -> System.out.println("Invalid choice");
+                    case 1:
+                        addStudent();
+                        break;
+                    case 2:
+                        addPremium();
+                        break;
+                    case 3:
+                        viewAll();
+                        break;
+                    case 4:
+                        viewStudents();
+                        break;
+                    case 5:
+                        viewPremiums();
+                        break;
+                    case 6:
+                        getById();
+                        break;
+                    case 7:
+                        updateStudent();
+                        break;
+                    case 8:
+                        updatePremium();
+                        break;
+                    case 9:
+                        deleteMember();
+                        break;
+                    case 10:
+                        searchByName();
+                        break;
+                    case 11:
+                        searchByAgeRange();
+                        break;
+                    case 12:
+                        searchByMinAge();
+                        break;
+                    case 13:
+                        demoPolymorphism();
+                        break;
+                    case 0:
+                        running = false;
+                        break;
+                    default:
+                        System.out.println("Invalid choice");
                 }
 
             } catch (NumberFormatException e) {
@@ -49,22 +100,14 @@ public class MenuManager implements Menu {
 
     private void addStudent() {
         try {
-            System.out.print("ID: ");
-            int id = Integer.parseInt(scanner.nextLine());
-
-            System.out.print("Name: ");
-            String name = scanner.nextLine();
-
-            System.out.print("Age: ");
-            int age = Integer.parseInt(scanner.nextLine());
-
-            System.out.print("University: ");
-            String uni = scanner.nextLine();
+            int id = readInt("ID: ");
+            String name = readText("Name: ");
+            int age = readInt("Age: ");
+            String uni = readText("University: ");
 
             StudentMember sm = new StudentMember(id, name, age, uni);
-            members.add(sm);
-
-            System.out.println("Student member added!");
+            boolean ok = dao.insertStudentMember(sm);
+            System.out.println(ok ? "Student member added!" : "Insert failed");
 
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
@@ -73,22 +116,14 @@ public class MenuManager implements Menu {
 
     private void addPremium() {
         try {
-            System.out.print("ID: ");
-            int id = Integer.parseInt(scanner.nextLine());
-
-            System.out.print("Name: ");
-            String name = scanner.nextLine();
-
-            System.out.print("Age: ");
-            int age = Integer.parseInt(scanner.nextLine());
-
-            System.out.print("Has personal trainer (true/false): ");
-            boolean trainer = Boolean.parseBoolean(scanner.nextLine());
+            int id = readInt("ID: ");
+            String name = readText("Name: ");
+            int age = readInt("Age: ");
+            boolean trainer = readBoolean("Has personal trainer (true/false): ");
 
             PremiumMember pm = new PremiumMember(id, name, age, trainer);
-            members.add(pm);
-
-            System.out.println("Premium member added!");
+            boolean ok = dao.insertPremiumMember(pm);
+            System.out.println(ok ? "Premium member added!" : "Insert failed");
 
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
@@ -96,6 +131,173 @@ public class MenuManager implements Menu {
     }
 
     private void viewAll() {
+        List<Member> members = dao.getAllMembers();
+        printMembers(members);
+    }
+
+    private void viewStudents() {
+        List<Member> members = dao.getMembersByType("Student");
+        printMembers(members);
+    }
+
+    private void viewPremiums() {
+        List<Member> members = dao.getMembersByType("Premium");
+        printMembers(members);
+    }
+
+    private void getById() {
+        try {
+            int id = readInt("Enter member ID: ");
+            Member m = dao.getMemberById(id);
+
+            if (m == null) {
+                System.out.println("Member not found.");
+                return;
+            }
+
+            System.out.println(m);
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void updateStudent() {
+        try {
+            int id = readInt("Student ID: ");
+            Member existing = dao.getMemberById(id);
+
+            if (existing == null) {
+                System.out.println("Member not found.");
+                return;
+            }
+            if (!(existing instanceof StudentMember)) {
+                System.out.println("This ID is not a Student Member.");
+                return;
+            }
+
+            String name = readText("New name: ");
+            int age = readInt("New age: ");
+            String uni = readText("New university: ");
+
+            new StudentMember(id, name, age, uni);
+
+            boolean ok = dao.updateStudentMember(id, name, age, uni);
+            System.out.println(ok ? "Updated!" : "Update failed");
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void updatePremium() {
+        try {
+            int id = readInt("Premium ID: ");
+            Member existing = dao.getMemberById(id);
+
+            if (existing == null) {
+                System.out.println("Member not found.");
+                return;
+            }
+            if (!(existing instanceof PremiumMember)) {
+                System.out.println("This ID is not a Premium Member.");
+                return;
+            }
+
+            String name = readText("New name: ");
+            int age = readInt("New age: ");
+            boolean trainer = readBoolean("Has personal trainer (true/false): ");
+
+            new PremiumMember(id, name, age, trainer);
+
+            boolean ok = dao.updatePremiumMember(id, name, age, trainer);
+            System.out.println(ok ? "Updated!" : "Update failed");
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void deleteMember() {
+        try {
+            int id = readInt("Member ID to delete: ");
+            Member existing = dao.getMemberById(id);
+
+            if (existing == null) {
+                System.out.println("Member not found.");
+                return;
+            }
+
+            System.out.println("Found: " + existing);
+            String confirm = readText("Type YES to confirm deletion: ");
+
+            if (!confirm.equalsIgnoreCase("YES")) {
+                System.out.println("Cancelled.");
+                return;
+            }
+
+            boolean ok = dao.deleteMember(id);
+            System.out.println(ok ? "Deleted!" : "Delete failed");
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void searchByName() {
+        try {
+            String part = readText("Name contains: ");
+            List<Member> members = dao.searchByName(part);
+            printMembers(members);
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void searchByAgeRange() {
+        try {
+            int min = readInt("Min age: ");
+            int max = readInt("Max age: ");
+
+            if (min > max) {
+                System.out.println("Min age cannot be bigger than max age.");
+                return;
+            }
+
+            List<Member> members = dao.searchByAgeRange(min, max);
+            printMembers(members);
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void searchByMinAge() {
+        try {
+            int min = readInt("Min age: ");
+            List<Member> members = dao.searchByMinAge(min);
+            printMembers(members);
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void demoPolymorphism() {
+        System.out.println("\n--- POLYMORPHISM DEMO ---");
+        List<Member> members = dao.getAllMembers();
+
+        for (Member m : members) {
+            m.workout();
+            if (m instanceof Discountable) {
+                Discountable d = (Discountable) m;
+                d.applyDiscount();
+            }
+        }
+    }
+
+    private void printMembers(List<Member> members) {
         if (members.isEmpty()) {
             System.out.println("No members.");
             return;
@@ -105,14 +307,27 @@ public class MenuManager implements Menu {
         }
     }
 
-    private void demoPolymorphism() {
-        System.out.println("\n--- POLYMORPHISM DEMO ---");
-        for (Member m : members) {
-            m.workout();
-
-            if (m instanceof Discountable d) {
-                d.applyDiscount();
-            }
+    private String readText(String prompt) throws InvalidInputException {
+        System.out.print(prompt);
+        String text = scanner.nextLine().trim();
+        if (text.isEmpty()) {
+            throw new InvalidInputException("Input cannot be empty");
         }
+        return text;
+    }
+
+    private int readInt(String prompt) throws InvalidInputException {
+        String text = readText(prompt);
+        return Integer.parseInt(text);
+    }
+
+    private boolean readBoolean(String prompt) throws InvalidInputException {
+        String text = readText(prompt);
+
+        if (!text.equalsIgnoreCase("true") && !text.equalsIgnoreCase("false")) {
+            throw new InvalidInputException("Enter true or false");
+        }
+
+        return Boolean.parseBoolean(text);
     }
 }
