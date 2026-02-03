@@ -18,6 +18,10 @@ public class StudentMember extends Member implements Discountable {
         this.university = university;
     }
 
+    public String getUniversity() {
+        return university;
+    }
+
     @Override
     public void workout() {
         System.out.println("Student " + name + " is doing a light workout.");
