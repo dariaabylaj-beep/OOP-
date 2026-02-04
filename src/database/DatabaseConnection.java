@@ -9,18 +9,9 @@ public class DatabaseConnection {
     private static final String USER = "postgres";
     private static final String PASSWORD = "123456";
 
-    public static Connection getConnection() {
-        Connection connection = null;
-
-        try {
-            connection = DriverManager.getConnection(URL, USER, PASSWORD);
-            System.out.println("Connected");
-        } catch (SQLException e)
-        {
-            System.out.println("Connection failed");
-        }
-
-        return connection;
+    // Simple connection method: DAO methods will use try-with-resources and handle SQLException in menu.
+    public static Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 
     public static void closeConnection(Connection connection) {
