@@ -7,6 +7,7 @@ import model.Member;
 import model.PremiumMember;
 import model.StudentMember;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -39,252 +40,192 @@ public class MenuManager implements Menu {
     public void run() {
         boolean running = true;
 
-        while (running) {
-            displayMenu();
+        try {
+            while (running) {
+                displayMenu();
 
-            try {
-                int choice = Integer.parseInt(scanner.nextLine());
+                try {
+                    int choice = Integer.parseInt(scanner.nextLine());
 
-                switch (choice) {
-                    case 1:
-                        addStudent();
-                        break;
-                    case 2:
-                        addPremium();
-                        break;
-                    case 3:
-                        viewAll();
-                        break;
-                    case 4:
-                        viewStudents();
-                        break;
-                    case 5:
-                        viewPremiums();
-                        break;
-                    case 6:
-                        getById();
-                        break;
-                    case 7:
-                        updateStudent();
-                        break;
-                    case 8:
-                        updatePremium();
-                        break;
-                    case 9:
-                        deleteMember();
-                        break;
-                    case 10:
-                        searchByName();
-                        break;
-                    case 11:
-                        searchByAgeRange();
-                        break;
-                    case 12:
-                        searchByMinAge();
-                        break;
-                    case 13:
-                        demoPolymorphism();
-                        break;
-                    case 0:
-                        running = false;
-                        break;
-                    default:
-                        System.out.println("Invalid choice");
+                    switch (choice) {
+                        case 1: addStudent(); break;
+                        case 2: addPremium(); break;
+                        case 3: viewAll(); break;
+                        case 4: viewStudents(); break;
+                        case 5: viewPremiums(); break;
+                        case 6: getById(); break;
+                        case 7: updateStudent(); break;
+                        case 8: updatePremium(); break;
+                        case 9: deleteMember(); break;
+                        case 10: searchByName(); break;
+                        case 11: searchByAgeRange(); break;
+                        case 12: searchByMinAge(); break;
+                        case 13: demoPolymorphism(); break;
+                        case 0:
+                            running = false;
+                            System.out.println("Goodbye!");
+                            break;
+                        default:
+                            System.out.println("Invalid choice");
+                    }
+
+                } catch (NumberFormatException e) {
+                    System.out.println("Enter a valid number!");
+                } catch (InvalidInputException e) {
+                    System.out.println("Error: " + e.getMessage());
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Error: " + e.getMessage());
+                } catch (SQLException e) {
+                    System.out.println("Database error: " + e.getMessage());
                 }
-
-            } catch (NumberFormatException e) {
-                System.out.println("Enter a valid number!");
             }
+        } finally {
+            scanner.close();
         }
     }
 
-    private void addStudent() {
-        try {
-            int id = readInt("ID: ");
-            String name = readText("Name: ");
-            int age = readInt("Age: ");
-            String uni = readText("University: ");
+    private void addStudent() throws InvalidInputException, SQLException {
+        int id = readInt("ID: ");
+        String name = readText("Name: ");
+        int age = readInt("Age: ");
+        String uni = readText("University: ");
 
-            StudentMember sm = new StudentMember(id, name, age, uni);
-            boolean ok = dao.insertStudentMember(sm);
-            System.out.println(ok ? "Student member added!" : "Insert failed");
-
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
+        StudentMember sm = new StudentMember(id, name, age, uni);
+        boolean ok = dao.insertStudentMember(sm);
+        System.out.println(ok ? "Student member added!" : "Insert failed");
     }
 
-    private void addPremium() {
-        try {
-            int id = readInt("ID: ");
-            String name = readText("Name: ");
-            int age = readInt("Age: ");
-            boolean trainer = readBoolean("Has personal trainer (true/false): ");
+    private void addPremium() throws InvalidInputException, SQLException {
+        int id = readInt("ID: ");
+        String name = readText("Name: ");
+        int age = readInt("Age: ");
+        boolean trainer = readBoolean("Has personal trainer (true/false): ");
 
-            PremiumMember pm = new PremiumMember(id, name, age, trainer);
-            boolean ok = dao.insertPremiumMember(pm);
-            System.out.println(ok ? "Premium member added!" : "Insert failed");
-
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
+        PremiumMember pm = new PremiumMember(id, name, age, trainer);
+        boolean ok = dao.insertPremiumMember(pm);
+        System.out.println(ok ? "Premium member added!" : "Insert failed");
     }
 
-    private void viewAll() {
+    private void viewAll() throws SQLException {
         List<Member> members = dao.getAllMembers();
         printMembers(members);
     }
 
-    private void viewStudents() {
+    private void viewStudents() throws SQLException {
         List<Member> members = dao.getMembersByType("Student");
         printMembers(members);
     }
 
-    private void viewPremiums() {
+    private void viewPremiums() throws SQLException {
         List<Member> members = dao.getMembersByType("Premium");
         printMembers(members);
     }
 
-    private void getById() {
-        try {
-            int id = readInt("Enter member ID: ");
-            Member m = dao.getMemberById(id);
+    private void getById() throws InvalidInputException, SQLException {
+        int id = readInt("Enter member ID: ");
+        Member m = dao.getMemberById(id);
 
-            if (m == null) {
-                System.out.println("Member not found.");
-                return;
-            }
-
-            System.out.println(m);
-
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+        if (m == null) {
+            System.out.println("Member not found.");
+            return;
         }
+
+        System.out.println(m);
     }
 
-    private void updateStudent() {
-        try {
-            int id = readInt("Student ID: ");
-            Member existing = dao.getMemberById(id);
+    private void updateStudent() throws InvalidInputException, SQLException {
+        int id = readInt("Student ID: ");
+        Member existing = dao.getMemberById(id);
 
-            if (existing == null) {
-                System.out.println("Member not found.");
-                return;
-            }
-            if (!(existing instanceof StudentMember)) {
-                System.out.println("This ID is not a Student Member.");
-                return;
-            }
-
-            String name = readText("New name: ");
-            int age = readInt("New age: ");
-            String uni = readText("New university: ");
-
-            new StudentMember(id, name, age, uni);
-
-            boolean ok = dao.updateStudentMember(id, name, age, uni);
-            System.out.println(ok ? "Updated!" : "Update failed");
-
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+        if (existing == null) {
+            System.out.println("Member not found.");
+            return;
         }
+        if (!(existing instanceof StudentMember)) {
+            System.out.println("This ID is not a Student Member.");
+            return;
+        }
+
+        String name = readText("New name: ");
+        int age = readInt("New age: ");
+        String uni = readText("New university: ");
+
+        new StudentMember(id, name, age, uni);
+
+        boolean ok = dao.updateStudentMember(id, name, age, uni);
+        System.out.println(ok ? "Updated!" : "Update failed");
     }
 
-    private void updatePremium() {
-        try {
-            int id = readInt("Premium ID: ");
-            Member existing = dao.getMemberById(id);
+    private void updatePremium() throws InvalidInputException, SQLException {
+        int id = readInt("Premium ID: ");
+        Member existing = dao.getMemberById(id);
 
-            if (existing == null) {
-                System.out.println("Member not found.");
-                return;
-            }
-            if (!(existing instanceof PremiumMember)) {
-                System.out.println("This ID is not a Premium Member.");
-                return;
-            }
-
-            String name = readText("New name: ");
-            int age = readInt("New age: ");
-            boolean trainer = readBoolean("Has personal trainer (true/false): ");
-
-            new PremiumMember(id, name, age, trainer);
-
-            boolean ok = dao.updatePremiumMember(id, name, age, trainer);
-            System.out.println(ok ? "Updated!" : "Update failed");
-
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+        if (existing == null) {
+            System.out.println("Member not found.");
+            return;
         }
+        if (!(existing instanceof PremiumMember)) {
+            System.out.println("This ID is not a Premium Member.");
+            return;
+        }
+
+        String name = readText("New name: ");
+        int age = readInt("New age: ");
+        boolean trainer = readBoolean("Has personal trainer (true/false): ");
+
+        new PremiumMember(id, name, age, trainer);
+
+        boolean ok = dao.updatePremiumMember(id, name, age, trainer);
+        System.out.println(ok ? "Updated!" : "Update failed");
     }
 
-    private void deleteMember() {
-        try {
-            int id = readInt("Member ID to delete: ");
-            Member existing = dao.getMemberById(id);
+    private void deleteMember() throws InvalidInputException, SQLException {
+        int id = readInt("Member ID to delete: ");
+        Member existing = dao.getMemberById(id);
 
-            if (existing == null) {
-                System.out.println("Member not found.");
-                return;
-            }
-
-            System.out.println("Found: " + existing);
-            String confirm = readText("Type YES to confirm deletion: ");
-
-            if (!confirm.equalsIgnoreCase("YES")) {
-                System.out.println("Cancelled.");
-                return;
-            }
-
-            boolean ok = dao.deleteMember(id);
-            System.out.println(ok ? "Deleted!" : "Delete failed");
-
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+        if (existing == null) {
+            System.out.println("Member not found.");
+            return;
         }
+
+        System.out.println("Found: " + existing);
+        String confirm = readText("Type YES to confirm deletion: ");
+
+        if (!confirm.equalsIgnoreCase("YES")) {
+            System.out.println("Cancelled.");
+            return;
+        }
+
+        boolean ok = dao.deleteMember(id);
+        System.out.println(ok ? "Deleted!" : "Delete failed");
     }
 
-    private void searchByName() {
-        try {
-            String part = readText("Name contains: ");
-            List<Member> members = dao.searchByName(part);
-            printMembers(members);
-
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
+    private void searchByName() throws InvalidInputException, SQLException {
+        String part = readText("Name contains: ");
+        List<Member> members = dao.searchByName(part);
+        printMembers(members);
     }
 
-    private void searchByAgeRange() {
-        try {
-            int min = readInt("Min age: ");
-            int max = readInt("Max age: ");
+    private void searchByAgeRange() throws InvalidInputException, SQLException {
+        int min = readInt("Min age: ");
+        int max = readInt("Max age: ");
 
-            if (min > max) {
-                System.out.println("Min age cannot be bigger than max age.");
-                return;
-            }
-
-            List<Member> members = dao.searchByAgeRange(min, max);
-            printMembers(members);
-
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+        if (min > max) {
+            System.out.println("Min age cannot be bigger than max age.");
+            return;
         }
+
+        List<Member> members = dao.searchByAgeRange(min, max);
+        printMembers(members);
     }
 
-    private void searchByMinAge() {
-        try {
-            int min = readInt("Min age: ");
-            List<Member> members = dao.searchByMinAge(min);
-            printMembers(members);
-
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
+    private void searchByMinAge() throws InvalidInputException, SQLException {
+        int min = readInt("Min age: ");
+        List<Member> members = dao.searchByMinAge(min);
+        printMembers(members);
     }
 
-    private void demoPolymorphism() {
+    private void demoPolymorphism() throws SQLException {
         System.out.println("\n--- POLYMORPHISM DEMO ---");
         List<Member> members = dao.getAllMembers();
 
